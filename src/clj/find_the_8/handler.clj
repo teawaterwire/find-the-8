@@ -18,10 +18,10 @@
      (include-css (if (env :dev) "css/site.css" "css/site.min.css"))]
     [:body
      [:div#app
-      [:h3 "ClojureScript has not been compiled!"]
-      [:p "please run "
-       [:b "lein figwheel"]
-       " in order to start the compiler"]]
+      [:h3 "Find the fucking 8!"]
+      [:p "please find "
+       [:b "the fucking"]
+       " number eight yes please find it"]]
      (include-js "js/app.js")]]))
 
 (defroutes routes

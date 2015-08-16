@@ -9,25 +9,28 @@
 ;; -------------------------
 ;; State
 
-(defonce initial-state {:level 0 :time-left 5})
-(defonce app-data (atom initial-state))
+(defonce initial-level 0)
+(defonce initial-time-left 5)
+(defonce level (atom initial-level))
+(defonce time-left (atom initial-time-left))
 
 ;; -------------------------
 ;; Components
 
 (defn fucking-8 []
-  (if (= 0 (:time-left @app-data))
+  (if (= 0 @time-left)
     [:span 8]
     [:span
       {:on-click
-        #(swap! app-data assoc
-           :level (inc (:level @app-data))
-           :time-left (+ 5 (:time-left @app-data)))}
+        (fn []
+          (swap! level inc)
+          (swap! time-left (partial + 5)))}
       8]))
 
 
-(defn field [size width-cell]
-  (let [total-elems (* size size)
+(defn field [width-cell]
+  (let [size (+ 5 @level)
+        total-elems (* size size)
         position-8 (rand-int total-elems)]
     [:div.flex-wrap {:style {:width (* size width-cell) :margin "auto"}}
       (for [i (range total-elems)]
@@ -39,22 +42,26 @@
 
 
 (defn home-page []
-  (def timer (js/setInterval #(swap! app-data assoc :time-left (dec (:time-left @app-data))) 1000))
-  (fn []
-    (let [level (:level @app-data)
-          time-left (:time-left @app-data)
-          game-over? (= 0 time-left)]
-      (if game-over? (js/clearInterval timer))
-      [:div.text-center
-        [:div {:style {:opacity (if game-over? 0.5 1)}}
-          [:h2 "level " level]
-          [:h3 "You have " time-left  " seconds left to find the 8"]
-          [field (+ 5 level) 20]]
-        (if game-over?
-          [:h4
-            [:a
-              {:on-click #(.reload js/location)}
-              "Replay"]])])))
+  (let [createInterval (fn [] (js/setInterval #(swap! time-left dec) 1000))
+        timer (atom (createInterval))]
+    (fn []
+      (let [game-over? (>= 0 @time-left)]
+        (if game-over? (js/clearInterval @timer))
+        [:div.text-center
+          [:div {:style {:opacity (if game-over? 0.5 1)}}
+            [:h2 "level " @level]
+            [:h3 "You have " @time-left  " seconds left to find the 8"]
+            [field 20]]
+          (if game-over?
+            [:h4
+              [:a
+                {:on-click
+                  (fn []
+                    (reset! timer (createInterval))
+                    (reset! level initial-level)
+                    (reset! time-left initial-time-left))}
+                "Replay"]])]))))
+
 
 ; (defn about-page []
 ;   [:div [:h2 "About find-the-8"]
