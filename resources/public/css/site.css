@@ -39,7 +39,9 @@ a:hover {
 
 .flex-wrap {
   display: flex;
+  display: -webkit-flex;
   flex-wrap: wrap;
+  -webkit-flex-wrap: wrap;
 }
 
 .pointer {

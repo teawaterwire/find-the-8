@@ -13,6 +13,8 @@
 (defonce initial-time-left 5)
 (defonce level (atom initial-level))
 (defonce time-left (atom initial-time-left))
+(defn dec-time-left []
+  (when (< 0 @time-left) (swap! time-left dec)))
 
 ;; -------------------------
 ;; Components
@@ -32,9 +34,10 @@
   (let [size (+ 5 @level)
         total-elems (* size size)
         position-8 (rand-int total-elems)]
-    [:div.flex-wrap {:style {:width (* size width-cell) :margin "auto"}}
+    [:div.flex-wrap.text-center.pointer
+      {:style {:width (* size width-cell) :margin "auto"}}
       (for [i (range total-elems)]
-        [:div.text-center.pointer
+        [:div
           {:style {:width width-cell} :key i}
           (if (= position-8 i)
             [fucking-8]
@@ -42,7 +45,7 @@
 
 
 (defn home-page []
-  (let [createInterval (fn [] (js/setInterval #(swap! time-left dec) 1000))
+  (let [createInterval (fn [] (js/setInterval dec-time-left 1000))
         timer (atom (createInterval))]
     (fn []
       (let [game-over? (>= 0 @time-left)]
